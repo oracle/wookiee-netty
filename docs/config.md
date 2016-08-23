@@ -59,7 +59,7 @@ wookiee-netty {
 }
 akka.actor.deployment {
   /system/component/wookiee-netty/netty-server/netty-worker {
-    router = round-robin
+    router = round-robin-pool
     nr-of-instances = 3
   }
 }
