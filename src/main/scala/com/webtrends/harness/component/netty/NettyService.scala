@@ -46,7 +46,7 @@ trait NettyService extends Service {
    * The actor has been asked to respond with some additional meta information.
    * @return An instance of ServiceMetaDetails
    */
-  protected def getMetaDetails: ServiceMetaDetails = {
+  protected override def getMetaDetails: ServiceMetaDetails = {
     ServiceMetaDetails(getHandlers().size > 0)
   }
 }
