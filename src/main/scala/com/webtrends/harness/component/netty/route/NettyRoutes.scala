@@ -1,7 +1,7 @@
 package com.webtrends.harness.component.netty.route
 
 import akka.actor.ActorRef
-import com.webtrends.harness.command.{CommandBean, CommandResponse, Command}
+import com.webtrends.harness.command.{BaseCommandResponse, Command, CommandBean, CommandResponse}
 import com.webtrends.harness.component.netty.BaseInboundHandler
 import com.webtrends.harness.component.netty.handler.HandlerManager
 import com.webtrends.harness.component.netty.route.NettyCommand.HandleHttpRequest
@@ -10,7 +10,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.http.{FullHttpRequest, HttpMethod}
 import io.netty.handler.codec.http.HttpMethod._
 
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 
 /**
  * @author Michael Cuthbert on 6/2/15.
@@ -47,7 +47,10 @@ private[route] trait NettyRoutes extends HandlerFunctions {
   import context.dispatcher
 
   def innerExecute[T<:AnyRef:Manifest](ctx:ChannelHandlerContext, req:FullHttpRequest, bean:Option[CommandBean]) = {
-    execute(bean).mapTo[CommandResponse[T]] onComplete {
+    execute(bean).map {
+      case r: NettyCommandResponse[T] => r
+      case b: BaseCommandResponse[T] => NettyCommandResponse(b.data)
+    } onComplete {
       case Success(s) =>
         s.data match {
           case Some(value) => sendContent(ctx, req, value.toString, s.responseType)
